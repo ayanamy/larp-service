@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.larp.mapper.RolesMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.larp.entity.Roles">
+        <id column="id" property="id"/>
+        <result column="game_id" property="gameId"/>
+        <result column="role_name" property="roleName"/>
+        <result column="description" property="description"/>
+        <result column="avatar" property="avatar"/>
+        <result column="user" property="user"/>
+        <result column="status" property="status"/>
+        <result column="images" property="images"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, game_id, role_name, description, avatar, user, status, images
+    </sql>
+
+    <select id="selectByGame" resultMap="BaseResultMap">
+        select * from roles
+        <trim suffixOverrides="and" prefixOverrides="and">
+            <where>
+                <if test="gameId!=null">
+                    and game_id = #{gameId}
+                </if>
+            </where>
+        </trim>
+    </select>
+
+</mapper>

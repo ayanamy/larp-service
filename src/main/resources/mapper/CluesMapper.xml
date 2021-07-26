@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.larp.mapper.CluesMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.larp.entity.Clues">
+        <id column="id" property="id"/>
+        <result column="game_id" property="gameId"/>
+        <result column="code" property="code"/>
+        <result column="location" property="location"/>
+        <result column="description" property="description"/>
+        <result column="images" property="images"/>
+        <result column="status" property="status"/>
+        <result column="role_id" property="roleId"/>
+        <result column="round" property="round"/>
+        <result column="pick_time" property="pickTime"/>
+        <result column="clue_type" property="clueType"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, game_id, code, location, description, images, status, role_id, round, pick_time, clue_type
+    </sql>
+
+
+    <select id="getPrevClues" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from clues
+        where 1=1
+        <if test="roleId != null">
+            and role_id = #{roleId}
+        </if>
+        <if test="round != null">
+            and round = #{round}
+        </if>
+        and status in (1,2) order by pick_time desc
+    </select>
+
+    <select id="getNewClues" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from clues
+        where 1=1
+        <if test="gameId != null">
+            and game_id = #{gameId}
+        </if>
+        <if test="round != null">
+            and round = #{round}
+        </if>
+        and status = 0 limit 1
+    </select>
+
+    <select id="getMyClues" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from clues
+        where 1=1
+        <if test="gameId != null">
+            and game_id = #{gameId}
+        </if>
+        and (
+        <if test="roleId != null">
+            role_Id = #{roleId}
+        </if>
+        or status=2
+        )
+    </select>
+
+</mapper>
