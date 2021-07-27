@@ -42,4 +42,5 @@ public class CluesController {
         List<Clues> clues = cluesService.getMyClues(roleId);
         return Result.success(clues);
     }
+
 }

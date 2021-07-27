@@ -1,5 +1,6 @@
 package com.larp.service.impl;
 
+import cn.hutool.core.convert.Convert;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -7,9 +8,11 @@ import com.larp.common.exception.CommonException;
 import com.larp.entity.Clues;
 import com.larp.entity.Game;
 import com.larp.entity.Roles;
+import com.larp.entity.Scripts;
 import com.larp.mapper.CluesMapper;
 import com.larp.mapper.GameMapper;
 import com.larp.mapper.RolesMapper;
+import com.larp.mapper.ScriptsMapper;
 import com.larp.service.GameService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.Value;
@@ -52,6 +55,9 @@ public class GameServiceImpl extends ServiceImpl<GameMapper, Game> implements Ga
 
     @Resource
     CluesMapper cluesMapper;
+
+    @Resource
+    ScriptsMapper scriptsMapper;
 
     @Override
     public Game getCurrentGame() {
@@ -133,19 +139,34 @@ public class GameServiceImpl extends ServiceImpl<GameMapper, Game> implements Ga
         }
         String path = ResourceUtils.getURL("classpath:").getPath() + "static";
         String dirPath = path + "/" + game.getGameName() + "/剧本";
-        File[] files = FileUtil.ls(dirPath);
-        if (files.length == 0) {
+        File[] folds = FileUtil.ls(dirPath);
+        if (folds.length == 0) {
             throw new CommonException("未上传剧本");
         }
-
-        for (File file : files) {
-            if (file.isDirectory()) {
-                String roleName = file.getName();
+        // 第一层是角色的名称
+        // 第二层是角色的剧本
+        for (File fold : folds) {
+            if (fold.isDirectory()) {
+                String roleName = fold.getName();
                 Roles role = new Roles();
                 role.setGameId(gameId);
                 role.setRoleName(roleName);
                 // todo 以后加上批量
                 rolesMapper.insert(role);
+                File[] files = FileUtil.ls(fold.getPath());
+                for (File file : files) {
+                    if (file.isFile()) {
+                        String fileName = file.getName();
+                        fileName = fileName.substring(0,fileName.indexOf("."));
+                        int orderNo = Convert.toInt(fileName,0);
+                        Scripts scripts = new Scripts();
+                        scripts.setGameId(gameId);
+                        scripts.setRoleId(role.getId());
+                        scripts.setContent(file.getName());
+                        scripts.setOrderNo(orderNo);
+                        scriptsMapper.insert(scripts);
+                    }
+                }
             }
         }
     }

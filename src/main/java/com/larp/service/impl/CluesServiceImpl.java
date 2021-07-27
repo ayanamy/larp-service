@@ -74,5 +74,5 @@ public class CluesServiceImpl extends ServiceImpl<CluesMapper, Clues> implements
     public List<Clues> getMyClues(Integer roleId) {
         Game game = gameService.getCurrentGame();
         return cluesMapper.getMyClues(roleId, game.getId());
-    };
+    }
 }

@@ -1,7 +1,10 @@
 package com.larp.service;
 
+import com.larp.entity.Clues;
 import com.larp.entity.Scripts;
 import com.baomidou.mybatisplus.extension.service.IService;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,4 +16,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface ScriptsService extends IService<Scripts> {
 
+    List<Scripts> getScripts(int roleId,int round);
 }

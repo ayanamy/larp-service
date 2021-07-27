@@ -4,16 +4,17 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.larp.entity.Scripts">
-        <id column="id" property="id" />
-        <result column="game_id" property="gameId" />
-        <result column="role_id" property="roleId" />
-        <result column="round" property="round" />
-        <result column="content" property="content" />
+        <id column="id" property="id"/>
+        <result column="game_id" property="gameId"/>
+        <result column="role_id" property="roleId"/>
+        <result column="round" property="round"/>
+        <result column="content" property="content"/>
+        <result column="orderNo" property="order_no"/>
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, game_id, role_id, round, content
+        id, game_id, role_id, round, content, order_no
     </sql>
 
 </mapper>

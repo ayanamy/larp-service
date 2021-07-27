@@ -45,5 +45,10 @@ public class Scripts implements Serializable {
      */
     private String content;
 
+    /**
+     * 排序
+     */
+    private Integer orderNo;
+
 
 }
