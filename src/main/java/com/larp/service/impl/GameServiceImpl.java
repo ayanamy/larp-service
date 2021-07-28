@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,7 +77,7 @@ public class GameServiceImpl extends ServiceImpl<GameMapper, Game> implements Ga
         }
         game.setStatus(0);
         game.setCreateTime(DateUtil.date());
-        game.setRound(0);
+        game.setRound(-1); // -1 还未分配角色 0是分配好角色 发放初始信息
         game.setCluesEnable(0);
         gameMapper.insert(game);
         // 上传线索和剧本
@@ -96,6 +97,7 @@ public class GameServiceImpl extends ServiceImpl<GameMapper, Game> implements Ga
         if (clues != null) {
             for (MultipartFile file : clues) {
                 String fileName = file.getOriginalFilename();
+                fileName = fileName.substring(fileName.indexOf("/"));
                 File f = new File(dirPath + "/线索/" + fileName);
                 FileUtil.touch(f);
                 file.transferTo(f);
@@ -128,7 +130,7 @@ public class GameServiceImpl extends ServiceImpl<GameMapper, Game> implements Ga
     }
 
     @Override
-    public void initRoles(Integer gameId) throws IOException {
+    public void initGame(Integer gameId) throws IOException {
         Game game = gameMapper.selectById(gameId);
         if (game == null) {
             throw new CommonException("该游戏不存在");
@@ -138,14 +140,15 @@ public class GameServiceImpl extends ServiceImpl<GameMapper, Game> implements Ga
             throw new CommonException("角色已存在");
         }
         String path = ResourceUtils.getURL("classpath:").getPath() + "static";
-        String dirPath = path + "/" + game.getGameName() + "/剧本";
-        File[] folds = FileUtil.ls(dirPath);
-        if (folds.length == 0) {
+        // 初始化角色和剧情
+        String roleDirPath = path + "/" + game.getGameName() + "/剧本";
+        File[] roleFolds = FileUtil.ls(roleDirPath);
+        if (roleFolds.length == 0) {
             throw new CommonException("未上传剧本");
         }
         // 第一层是角色的名称
         // 第二层是角色的剧本
-        for (File fold : folds) {
+        for (File fold : roleFolds) {
             if (fold.isDirectory()) {
                 String roleName = fold.getName();
                 Roles role = new Roles();
@@ -157,17 +160,60 @@ public class GameServiceImpl extends ServiceImpl<GameMapper, Game> implements Ga
                 for (File file : files) {
                     if (file.isFile()) {
                         String fileName = file.getName();
-                        fileName = fileName.substring(0,fileName.indexOf("."));
-                        int orderNo = Convert.toInt(fileName,0);
+                        fileName = fileName.substring(0, fileName.indexOf("."));
+                        int orderNo = Convert.toInt(fileName, 0);
                         Scripts scripts = new Scripts();
                         scripts.setGameId(gameId);
                         scripts.setRoleId(role.getId());
-                        scripts.setContent(file.getName());
+                        scripts.setContent(game.getGameName() + "/剧本/" + roleName + "/" + file.getName());
                         scripts.setOrderNo(orderNo);
                         scriptsMapper.insert(scripts);
                     }
                 }
             }
         }
+
+        // 初始化线索
+        // 线索有三层
+        // 第一层 文件夹 1 2 代表着第几轮的线索
+        // 第二层 文件夹 地点一 地点二 代表着线索来自哪里
+        // 第三层 图片   具体的线索
+        String cluesDirPath = path + "/" + game.getGameName() + "/线索";
+        File[] cluesFolds = FileUtil.ls(cluesDirPath);
+        if (cluesFolds.length == 0) {
+            throw new CommonException("未上传线索");
+        }
+        for (File fold : cluesFolds) {
+            if (fold.isDirectory()) {
+                String foldName = fold.getName();
+                int round = Convert.toInt(foldName, -1);
+                if (round > 0) {
+                    File[] folds2 = FileUtil.ls(fold.getPath());
+                    for (File fold2 : folds2) {
+                        if (fold.isDirectory()) {
+                            String location = fold2.getName();
+                            File[] clues = FileUtil.ls(fold2.getPath());
+                            for (File clueFile : clues) {
+                                if (clueFile.isFile()) {
+                                    String fileName = clueFile.getName();
+                                    fileName = fileName.substring(0, fileName.indexOf("."));
+                                    Clues clue = new Clues();
+                                    clue.setGameId(gameId);
+                                    clue.setCode(fileName);
+                                    clue.setLocation(location);
+                                    clue.setRound(round);
+                                    clue.setStatus(0);
+                                    clue.setClueType("normal");
+                                    clue.setImages(game.getGameName() + "/线索/" + round + "/" + location + "/" + clueFile.getName());
+                                    cluesMapper.insert(clue);
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+
     }
 }

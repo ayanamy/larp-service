@@ -27,5 +27,5 @@ public interface GameService extends IService<Game> {
 
     Object getGameDetail(int gameId);
 
-    void initRoles(Integer gameId) throws IOException;
+    void initGame(Integer gameId) throws IOException;
 }

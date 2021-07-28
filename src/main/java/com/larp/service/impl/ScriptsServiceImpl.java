@@ -32,4 +32,12 @@ public class ScriptsServiceImpl extends ServiceImpl<ScriptsMapper, Scripts> impl
         List<Scripts> scripts = scriptsMapper.selectList(queryWrapper);
         return scripts;
     }
+
+    @Override
+    public List<Scripts> getAllScripts(int roleId) {
+        QueryWrapper<Scripts> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("role_id", roleId);
+        List<Scripts> scripts = scriptsMapper.selectList(queryWrapper);
+        return scripts;
+    }
 }

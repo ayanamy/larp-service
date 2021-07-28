@@ -4,7 +4,6 @@ package com.larp.controller;
 import com.larp.common.lang.Result;
 import com.larp.entity.Game;
 import com.larp.service.GameService;
-import lombok.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -118,9 +117,9 @@ public class GameController {
      * @return
      * @throws FileNotFoundException
      */
-    @PostMapping("/initRoles/{gameId}")
-    public Result initRoles(@PathVariable Integer gameId) throws IOException {
-        gameService.initRoles(gameId);
+    @PostMapping("/initGame/{gameId}")
+    public Result initGame(@PathVariable Integer gameId) throws IOException {
+        gameService.initGame(gameId);
         return Result.success(true);
     }
 }

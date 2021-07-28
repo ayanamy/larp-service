@@ -6,11 +6,7 @@ import com.larp.entity.Clues;
 import com.larp.entity.Scripts;
 import com.larp.service.ScriptsService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -38,6 +34,17 @@ public class ScriptsController {
     public Result getScripts(@RequestParam int roleId,
                              @RequestParam int round) {
         List<Scripts> scripts = scriptsService.getScripts(roleId, round);
+        return Result.success(scripts);
+    }
+
+    /**
+     * 获取该角色的所有剧本
+     * @param roleId
+     * @return
+     */
+    @GetMapping("/getAllScripts/{roleId}")
+    public Result getAllScripts(@PathVariable int roleId){
+        List<Scripts> scripts = scriptsService.getAllScripts(roleId);
         return Result.success(scripts);
     }
 }
