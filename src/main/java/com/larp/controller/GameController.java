@@ -3,7 +3,9 @@ package com.larp.controller;
 
 import com.larp.common.lang.Result;
 import com.larp.entity.Game;
+import com.larp.entity.Roles;
 import com.larp.service.GameService;
+import org.apache.tomcat.util.digester.Rules;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -113,6 +115,7 @@ public class GameController {
 
     /**
      * 上传后初始化角色并附带剧本
+     *
      * @param gameId
      * @return
      * @throws FileNotFoundException
@@ -122,4 +125,11 @@ public class GameController {
         gameService.initGame(gameId);
         return Result.success(true);
     }
+
+    @PostMapping("/initMyRole/{gameId}")
+    public Result initMyRole(@PathVariable Integer gameId, @RequestParam String user) {
+        Roles role = gameService.initMyRole(gameId, user);
+        return Result.success(role);
+    }
+
 }

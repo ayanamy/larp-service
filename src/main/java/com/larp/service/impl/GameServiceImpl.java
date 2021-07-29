@@ -16,6 +16,7 @@ import com.larp.mapper.ScriptsMapper;
 import com.larp.service.GameService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.Value;
+import org.apache.tomcat.util.digester.Rules;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
@@ -30,10 +31,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * <p>
@@ -216,4 +214,36 @@ public class GameServiceImpl extends ServiceImpl<GameMapper, Game> implements Ga
         }
 
     }
+
+    @Override
+    public Roles initMyRole(Integer gameId, String user) {
+        Game game = gameMapper.selectById(gameId);
+        if (game == null) {
+            throw new CommonException("游戏不存在");
+        }
+        if (game.getStatus() != 1 || game.getRound() != -1) {
+            throw new CommonException("数据异常，请刷新");
+        }
+        QueryWrapper<Roles> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("game_id", gameId).eq("user", user);
+        Roles role = rolesMapper.selectOne(queryWrapper);
+        if (role != null) {
+            throw new CommonException("您已获取了角色");
+        }
+
+        QueryWrapper<Roles> queryWrapper2 = new QueryWrapper<>();
+        queryWrapper2.eq("game_id", gameId).and(wrapper -> wrapper.isNull("user").or().eq("user", ""));
+        List<Roles> rolesList = rolesMapper.selectList(queryWrapper2);
+        if(rolesList.size()==0){
+            throw new CommonException("已经没有剩余的角色了");
+        }
+        Random rand = new Random();
+        int temp = rand.nextInt(rolesList.size());
+        role = rolesList.get(temp);
+        role.setUser(user);
+        rolesMapper.updateById(role);
+        return role;
+
+    }
+
 }
