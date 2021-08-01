@@ -14,5 +14,5 @@ import java.util.List;
  * @since 2021-07-20
  */
 public interface RolesService extends IService<Roles> {
-    List<Roles> getRolesByGame(int gameId);
+    List<Roles> getRolesByGame(int gameId,String user);
 }

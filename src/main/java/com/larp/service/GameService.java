@@ -32,4 +32,6 @@ public interface GameService extends IService<Game> {
     void initGame(Integer gameId) throws IOException;
 
     Roles initMyRole(Integer gameId, String user);
+
+    void setNextRound(Integer gameId);
 }

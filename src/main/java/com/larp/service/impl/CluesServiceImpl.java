@@ -38,7 +38,7 @@ public class CluesServiceImpl extends ServiceImpl<CluesMapper, Clues> implements
         // 验证当前是否开启了线索
         Game game = gameService.getCurrentGame();
         if (game.getRound() == null || game.getRound() < 1 || game.getCluesEnable() == null || game.getCluesEnable() < 1) {
-            throw new CommonException("当前为开启线索");
+            throw new CommonException("当前未开启线索");
         }
         // 获取这一轮已经获取的线索
         List<Clues> clues = cluesMapper.getPrevClues(roleId, game.getRound());

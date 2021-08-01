@@ -27,23 +27,24 @@ public class ScriptsController {
 
     /**
      * 【管理】获取角色当前轮次前的剧本
+     *
      * @param roleId
      * @return
      */
     @GetMapping("/getScripts")
-    public Result getScripts(@RequestParam int roleId,
-                             @RequestParam int round) {
-        List<Scripts> scripts = scriptsService.getScripts(roleId, round);
+    public Result getScripts(@RequestParam int roleId,@RequestParam int gameId) {
+        List<Scripts> scripts = scriptsService.getScripts(roleId,gameId);
         return Result.success(scripts);
     }
 
     /**
      * 获取该角色的所有剧本
+     *
      * @param roleId
      * @return
      */
     @GetMapping("/getAllScripts/{roleId}")
-    public Result getAllScripts(@PathVariable int roleId){
+    public Result getAllScripts(@PathVariable int roleId) {
         List<Scripts> scripts = scriptsService.getAllScripts(roleId);
         return Result.success(scripts);
     }

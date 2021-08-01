@@ -3,6 +3,7 @@ package com.larp.service.impl;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.larp.common.exception.CommonException;
 import com.larp.entity.Clues;
@@ -145,7 +146,8 @@ public class GameServiceImpl extends ServiceImpl<GameMapper, Game> implements Ga
             throw new CommonException("未上传剧本");
         }
         // 第一层是角色的名称
-        // 第二层是角色的剧本
+        // 第二层是轮次
+        // 第三层是角色的剧本
         for (File fold : roleFolds) {
             if (fold.isDirectory()) {
                 String roleName = fold.getName();
@@ -154,20 +156,30 @@ public class GameServiceImpl extends ServiceImpl<GameMapper, Game> implements Ga
                 role.setRoleName(roleName);
                 // todo 以后加上批量
                 rolesMapper.insert(role);
-                File[] files = FileUtil.ls(fold.getPath());
-                for (File file : files) {
-                    if (file.isFile()) {
-                        String fileName = file.getName();
-                        fileName = fileName.substring(0, fileName.indexOf("."));
-                        int orderNo = Convert.toInt(fileName, 0);
-                        Scripts scripts = new Scripts();
-                        scripts.setGameId(gameId);
-                        scripts.setRoleId(role.getId());
-                        scripts.setContent(game.getGameName() + "/剧本/" + roleName + "/" + file.getName());
-                        scripts.setOrderNo(orderNo);
-                        scriptsMapper.insert(scripts);
+                File[] roundFolds = FileUtil.ls(fold.getPath());
+                for (File roundFold : roundFolds) {
+                    if (roundFold.isDirectory()) {
+                        String foldName = roundFold.getName();
+                        int round = Convert.toInt(foldName, 1);
+                        File[] files = FileUtil.ls(roundFold.getPath());
+                        for (File file : files) {
+                            if (file.isFile()) {
+                                String fileName = file.getName();
+                                fileName = fileName.substring(0, fileName.indexOf("."));
+                                int orderNo = Convert.toInt(fileName, 0);
+                                Scripts scripts = new Scripts();
+                                scripts.setGameId(gameId);
+                                scripts.setRoleId(role.getId());
+                                String content = StrUtil.format("{}/剧本/{}/{}/{}", game.getGameName(), roleName, round, file.getName());
+                                scripts.setContent(content);
+                                scripts.setOrderNo(orderNo);
+                                scripts.setRound(round);
+                                scriptsMapper.insert(scripts);
+                            }
+                        }
                     }
                 }
+
             }
         }
 
@@ -202,7 +214,8 @@ public class GameServiceImpl extends ServiceImpl<GameMapper, Game> implements Ga
                                     clue.setRound(round);
                                     clue.setStatus(0);
                                     clue.setClueType("normal");
-                                    clue.setImages(game.getGameName() + "/线索/" + round + "/" + location + "/" + clueFile.getName());
+                                    String images = StrUtil.format("{}/线索/{}/{}/{}", game.getGameName(), round, location, clueFile.getName());
+                                    clue.setImages(images);
                                     cluesMapper.insert(clue);
                                 }
                             }
@@ -234,7 +247,7 @@ public class GameServiceImpl extends ServiceImpl<GameMapper, Game> implements Ga
         QueryWrapper<Roles> queryWrapper2 = new QueryWrapper<>();
         queryWrapper2.eq("game_id", gameId).and(wrapper -> wrapper.isNull("user").or().eq("user", ""));
         List<Roles> rolesList = rolesMapper.selectList(queryWrapper2);
-        if(rolesList.size()==0){
+        if (rolesList.size() == 0) {
             throw new CommonException("已经没有剩余的角色了");
         }
         Random rand = new Random();
@@ -244,6 +257,17 @@ public class GameServiceImpl extends ServiceImpl<GameMapper, Game> implements Ga
         rolesMapper.updateById(role);
         return role;
 
+    }
+
+    @Override
+    public void setNextRound(Integer gameId) {
+        Game game = gameMapper.selectById(gameId);
+        if (game == null) {
+            throw new CommonException("游戏不存在");
+        }
+        int round = Convert.toInt(game.getRound(), -1);
+        game.setRound(round + 1);
+        gameMapper.updateById(game);
     }
 
 }

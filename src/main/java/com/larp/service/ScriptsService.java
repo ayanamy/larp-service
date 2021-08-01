@@ -16,7 +16,7 @@ import java.util.List;
  */
 public interface ScriptsService extends IService<Scripts> {
 
-    List<Scripts> getScripts(int roleId,int round);
+    List<Scripts> getScripts(int roleId,int gameId);
 
     List<Scripts> getAllScripts(int roleId);
 }

@@ -26,7 +26,7 @@ public class RolesController {
      * @return
      */
     @GetMapping("/list")
-    public Result list(@RequestParam int gameId) {
-        return Result.success(rolesService.getRolesByGame(gameId));
+    public Result list(@RequestParam int gameId,@RequestParam(defaultValue = "") String user) {
+        return Result.success(rolesService.getRolesByGame(gameId,user));
     }
 }
