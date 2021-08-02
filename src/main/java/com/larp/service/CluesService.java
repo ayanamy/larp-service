@@ -18,4 +18,5 @@ public interface CluesService extends IService<Clues> {
 
     List<Clues> getMyClues (Integer roleId);
 
+    Clues share(Integer id);
 }

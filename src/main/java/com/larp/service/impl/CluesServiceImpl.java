@@ -75,4 +75,12 @@ public class CluesServiceImpl extends ServiceImpl<CluesMapper, Clues> implements
         Game game = gameService.getCurrentGame();
         return cluesMapper.getMyClues(roleId, game.getId());
     }
+
+    @Override
+    public Clues share(Integer id) {
+        Clues clues = cluesMapper.selectById(id);
+        clues.setStatus(2);
+        cluesMapper.updateById(clues);
+        return clues;
+    }
 }

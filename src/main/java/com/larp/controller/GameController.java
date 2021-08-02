@@ -114,8 +114,7 @@ public class GameController {
     }
 
     /**
-     * 上传后初始化角色并附带剧本
-     *
+     * 【管理】上传后初始化角色并附带剧本
      * @param gameId
      * @return
      * @throws FileNotFoundException
@@ -126,6 +125,12 @@ public class GameController {
         return Result.success(true);
     }
 
+    /**
+     * 【玩家】获取初始角色
+     * @param gameId
+     * @param user
+     * @return
+     */
     @PostMapping("/initMyRole/{gameId}")
     public Result initMyRole(@PathVariable Integer gameId, @RequestParam String user) {
         Roles role = gameService.initMyRole(gameId, user);

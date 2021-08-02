@@ -18,16 +18,10 @@ public class WebController {
         return "index";
     }
 
-    @RequestMapping("/admin")
-    public String admin() {
-        return "index";
-    }
-
     @GetMapping("/webSocket/{sid}")
     public ModelAndView socket(@PathVariable String sid) {
-        System.out.println((sid));
-        ModelAndView mav=new ModelAndView("/webSocket");
-        mav.addObject("sid",sid);
+        ModelAndView mav = new ModelAndView("/webSocket");
+        mav.addObject("sid", sid);
         return mav;
     }
 }

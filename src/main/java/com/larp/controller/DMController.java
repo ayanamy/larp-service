@@ -2,6 +2,8 @@ package com.larp.controller;
 
 
 import com.larp.common.lang.Result;
+import com.larp.common.lang.WSResult;
+import com.larp.constants.MessageEnum;
 import com.larp.entity.Game;
 import com.larp.service.CluesService;
 import com.larp.service.GameService;
@@ -26,7 +28,7 @@ public class DMController {
     @PostMapping("/setNextRound/{gameId}")
     public Result setNextRound(@PathVariable Integer gameId) throws IOException {
         gameService.setNextRound(gameId);
-        webSocket.sendInfo("setNextRound", null);
+        webSocket.sendInfo(MessageEnum.SET_NEXT_ROUND.getCode(), null);
         return Result.success(true);
     }
 
@@ -38,7 +40,8 @@ public class DMController {
         }
         game.setCluesEnable(game.getCluesEnable() == 1 ? 0 : 1);
         gameService.updateById(game);
-        webSocket.sendInfo("setNextRound", null);
+        String res = WSResult.build(MessageEnum.OPEN_CLUE.getCode());
+        webSocket.sendInfo(res, null);
         return Result.success(true);
     }
 
