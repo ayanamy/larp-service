@@ -269,5 +269,4 @@ public class GameServiceImpl extends ServiceImpl<GameMapper, Game> implements Ga
         game.setRound(round + 1);
         gameMapper.updateById(game);
     }
-
 }

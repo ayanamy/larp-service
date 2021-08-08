@@ -4,14 +4,15 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.larp.entity.Users">
-        <id column="id" property="id" />
-        <result column="name" property="name" />
-        <result column="password" property="password" />
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="password" property="password"/>
+        <result column="role" property="role"/>
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, name, password
+        id, name, password,role
     </sql>
 
 </mapper>

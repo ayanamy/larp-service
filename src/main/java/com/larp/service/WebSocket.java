@@ -1,7 +1,11 @@
 package com.larp.service;
 
+import cn.hutool.core.lang.Console;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
@@ -28,25 +32,27 @@ public class WebSocket {
     /**
      * 接收sid
      */
-    private String sid="";
+    private String sid = "";
+
     /**
      * 连接建立成功调用的方法
      **/
     @OnOpen
-    public void onOpen(Session session,@PathParam("sid") String sid) {
+    public void onOpen(Session session, @PathParam("sid") String sid) {
         this.session = session;
         //加入set中
         webSocketSet.add(this);
         //在线数加1
         addOnlineCount();
-        log.info("有新窗口开始监听:"+sid+",当前在线人数为" + getOnlineCount());
-        this.sid=sid;
+        log.info("有新窗口开始监听:" + sid + ",当前在线人数为" + getOnlineCount());
+        this.sid = sid;
         try {
             sendMessage("连接成功");
         } catch (IOException e) {
             log.error("websocket IO异常");
         }
     }
+
     /**
      * 连接关闭调用的方法
      */
@@ -58,22 +64,34 @@ public class WebSocket {
         subOnlineCount();
         log.info("有一连接关闭！当前在线人数为" + getOnlineCount());
     }
+
     /**
      * 收到客户端消息后调用的方法
+     *
      * @param message 客户端发送过来的消息
      **/
     @OnMessage
     public void onMessage(String message, Session session) {
-        log.info("收到来自窗口"+sid+"的信息:"+message);
+        log.info("收到来自窗口" + sid + "的信息:" + message);
         //群发消息
+        JSONObject json = JSONUtil.parseObj(message, false);
+        Console.log(message,json.get("data"));
         for (WebSocket item : webSocketSet) {
             try {
-                item.sendMessage(message);
+                System.out.println(item.session);
+                if (json.get("to") != null) {
+                    if (json.getStr("to").indexOf(item.sid) > -1) {
+                        item.sendMessage(message);
+                    }
+                } else {
+                    item.sendMessage(message);
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
+
     /**
      * @param session
      * @param error
@@ -83,23 +101,25 @@ public class WebSocket {
         log.error("发生错误");
         error.printStackTrace();
     }
+
     /**
      * 实现服务器主动推送
      */
     private void sendMessage(String message) throws IOException {
         this.session.getBasicRemote().sendText(message);
     }
+
     /**
      * 群发自定义消息
-     * */
-    public static void sendInfo(String message,@PathParam("sid") String sid) throws IOException {
-        log.info("推送消息到窗口"+sid+"，推送内容:"+message);
+     */
+    public static void sendInfo(String message, @PathParam("sid") String sid) throws IOException {
+        log.info("推送消息到窗口" + sid + "，推送内容:" + message);
         for (WebSocket item : webSocketSet) {
             try {
                 //这里可以设定只推送给这个sid的，为null则全部推送
-                if(sid==null) {
+                if (sid == null) {
                     item.sendMessage(message);
-                }else if(item.sid.equals(sid)){
+                } else if (item.sid.equals(sid)) {
                     item.sendMessage(message);
                 }
             } catch (IOException e) {
@@ -107,12 +127,15 @@ public class WebSocket {
             }
         }
     }
+
     public static synchronized int getOnlineCount() {
         return onlineCount;
     }
+
     public static synchronized void addOnlineCount() {
         WebSocket.onlineCount++;
     }
+
     public static synchronized void subOnlineCount() {
         WebSocket.onlineCount--;
     }

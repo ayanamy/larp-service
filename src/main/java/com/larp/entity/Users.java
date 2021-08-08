@@ -29,5 +29,7 @@ public class Users implements Serializable {
 
     private String password;
 
+    private Integer role;
+
 
 }

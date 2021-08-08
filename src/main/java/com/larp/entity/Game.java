@@ -59,7 +59,7 @@ public class Game implements Serializable {
     private Integer minUser;
 
     /**
-     *  当前是第几幕
+     *  当前是第几幕 从1开始第一幕  -1 还未获取角色 0刚获取角色 999处于最终投票阶段
      */
     private Integer round;
 

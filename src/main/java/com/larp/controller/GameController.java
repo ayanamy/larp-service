@@ -65,6 +65,26 @@ public class GameController {
         return Result.success(true);
     }
 
+    @PostMapping("/start/{gameId}")
+    public Object start(@PathVariable Integer gameId) {
+        Game game = gameService.getCurrentGame();
+        if(game!=null){
+            return Result.fail("当前已经有启动的游戏了");
+        }
+        game = gameService.getById(gameId);
+        game.setStatus(1);
+        gameService.updateById(game);
+        return Result.success(true);
+    }
+
+    @PostMapping("/finish/{gameId}")
+    public Object finish(@PathVariable Integer gameId) {
+        Game game = gameService.getById(gameId);
+        game.setStatus(-1);
+        gameService.updateById(game);
+        return Result.success(true);
+    }
+
     /**
      * 【管理】创建游戏
      *

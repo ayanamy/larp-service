@@ -8,6 +8,8 @@ import com.larp.service.UsersService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * <p>
  * 前端控制器
@@ -33,4 +35,15 @@ public class UsersController {
         }
         return Result.success(users1);
     }
+
+    /**
+     * 【管理】获取所有用户用来选择dm
+     * @return
+     */
+    @GetMapping("/getList")
+    public Result getList() {
+        List<Users> usersList = usersService.list(null);
+        return Result.success(usersList);
+    }
+
 }

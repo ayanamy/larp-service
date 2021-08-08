@@ -34,4 +34,5 @@ public interface GameService extends IService<Game> {
     Roles initMyRole(Integer gameId, String user);
 
     void setNextRound(Integer gameId);
+
 }
