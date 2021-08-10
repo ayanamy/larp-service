@@ -21,7 +21,7 @@ import java.util.List;
 public interface GameService extends IService<Game> {
     Game  getCurrentGame();
 
-    void create(Game game, MultipartFile[] scripts, MultipartFile[] clues) throws IOException;
+    void create(Game game, MultipartFile[] scripts, MultipartFile[] clues,MultipartFile[] handbook) throws IOException;
 
     List<Game> getList();
 
@@ -34,5 +34,7 @@ public interface GameService extends IService<Game> {
     Roles initMyRole(Integer gameId, String user);
 
     void setNextRound(Integer gameId);
+
+    List<String>  getHandbook(Integer gameId) throws FileNotFoundException;
 
 }

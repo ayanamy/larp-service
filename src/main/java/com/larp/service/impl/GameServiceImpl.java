@@ -66,7 +66,7 @@ public class GameServiceImpl extends ServiceImpl<GameMapper, Game> implements Ga
     }
 
     @Override
-    public void create(Game game, MultipartFile[] scripts, MultipartFile[] clues) throws IOException {
+    public void create(Game game, MultipartFile[] scripts, MultipartFile[] clues, MultipartFile[] handbook) throws IOException {
         // 检查名称是否重复
         QueryWrapper<Game> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("game_name", game.getGameName());
@@ -84,6 +84,7 @@ public class GameServiceImpl extends ServiceImpl<GameMapper, Game> implements Ga
         String dirPath = path + "/" + game.getGameName();
         FileUtil.mkdir(dirPath + "/剧本");
         FileUtil.mkdir(dirPath + "/线索");
+        FileUtil.mkdir(dirPath + "/组织者手册");
         if (scripts != null) {
             for (MultipartFile file : scripts) {
                 String fileName = file.getOriginalFilename();
@@ -98,6 +99,15 @@ public class GameServiceImpl extends ServiceImpl<GameMapper, Game> implements Ga
                 String fileName = file.getOriginalFilename();
                 fileName = fileName.substring(fileName.indexOf("/"));
                 File f = new File(dirPath + "/线索/" + fileName);
+                FileUtil.touch(f);
+                file.transferTo(f);
+            }
+        }
+        if (handbook != null) {
+            for (MultipartFile file : clues) {
+                String fileName = file.getOriginalFilename();
+                fileName = fileName.substring(fileName.indexOf("/"));
+                File f = new File(dirPath + "/组织者手册/" + fileName);
                 FileUtil.touch(f);
                 file.transferTo(f);
             }
@@ -148,6 +158,7 @@ public class GameServiceImpl extends ServiceImpl<GameMapper, Game> implements Ga
         // 第一层是角色的名称
         // 第二层是轮次
         // 第三层是角色的剧本
+        int roundMax = 0;
         for (File fold : roleFolds) {
             if (fold.isDirectory()) {
                 String roleName = fold.getName();
@@ -157,6 +168,7 @@ public class GameServiceImpl extends ServiceImpl<GameMapper, Game> implements Ga
                 // todo 以后加上批量
                 rolesMapper.insert(role);
                 File[] roundFolds = FileUtil.ls(fold.getPath());
+                roundMax = Math.max(roundMax, roundFolds.length);
                 for (File roundFold : roundFolds) {
                     if (roundFold.isDirectory()) {
                         String foldName = roundFold.getName();
@@ -179,9 +191,9 @@ public class GameServiceImpl extends ServiceImpl<GameMapper, Game> implements Ga
                         }
                     }
                 }
-
             }
         }
+        game.setRoundTotal(roundMax);
 
         // 初始化线索
         // 线索有三层
@@ -219,13 +231,26 @@ public class GameServiceImpl extends ServiceImpl<GameMapper, Game> implements Ga
                                     cluesMapper.insert(clue);
                                 }
                             }
+                        } else if (fold.isFile()) {
+                            String fileName = fold.getName();
+                            fileName = fileName.substring(0, fileName.indexOf("."));
+                            Clues clue = new Clues();
+                            clue.setGameId(gameId);
+                            clue.setCode(fileName);
+                            clue.setLocation("");
+                            clue.setRound(round);
+                            clue.setStatus(0);
+                            clue.setClueType("special");
+                            String images = StrUtil.format("{}/线索/{}/{}", game.getGameName(), round, fileName);
+                            clue.setImages(images);
+                            cluesMapper.insert(clue);
                         }
                     }
 
                 }
             }
         }
-
+        gameMapper.updateById(game);
     }
 
     @Override
@@ -268,5 +293,23 @@ public class GameServiceImpl extends ServiceImpl<GameMapper, Game> implements Ga
         int round = Convert.toInt(game.getRound(), -1);
         game.setRound(round + 1);
         gameMapper.updateById(game);
+    }
+
+    @Override
+    public List<String> getHandbook(Integer gameId) throws FileNotFoundException {
+        Game game = gameMapper.selectById(gameId);
+        if (game == null) {
+            throw new CommonException("游戏不存在");
+        }
+        String path = ResourceUtils.getURL("classpath:").getPath() + "static";
+        String dirPath = path + "/" + game.getGameName() + "/组织者手册";
+        File[] files = FileUtil.ls((dirPath));
+        List<String> handbooks = new ArrayList<String>();
+        for (File file : files) {
+            if (file.isFile()) {
+                handbooks.add(dirPath + "/" + file.getName());
+            }
+        }
+        return handbooks;
     }
 }

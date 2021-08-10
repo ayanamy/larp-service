@@ -29,6 +29,9 @@ public class Users implements Serializable {
 
     private String password;
 
+    /**
+     * 用户类型，0玩家 1管理员
+     */
     private Integer role;
 
 

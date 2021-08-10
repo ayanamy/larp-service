@@ -82,5 +82,9 @@ public class Game implements Serializable {
      *  共有几幕
      */
     private Integer roundTotal;
+    /**
+     * 组织者手册
+     */
+    private String handbook;
 
 }

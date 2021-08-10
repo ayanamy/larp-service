@@ -102,6 +102,7 @@ public class GameController {
     @PostMapping("/create")
     public Result create(@RequestParam(value = "scripts", required = false) MultipartFile[] scripts,
                          @RequestParam(value = "clues", required = false) MultipartFile[] clues,
+                         @RequestParam(value = "handbook", required = false) MultipartFile[] handbook,
                          String gameName,
                          Integer maxClues,
                          String description,
@@ -116,8 +117,7 @@ public class GameController {
         game.setRoundTotal(roundTotal);
         game.setMaxUser(maxUser);
         game.setMinUser(minUser);
-        System.out.println(game);
-        gameService.create(game, scripts, clues);
+        gameService.create(game, scripts, clues, handbook);
         return Result.success(true);
     }
 

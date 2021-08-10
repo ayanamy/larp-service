@@ -16,13 +16,14 @@
         <result column="round" property="round"/>
         <result column="dm" property="dm"/>
         <result column="round_total" property="roundTotal"/>
+        <result column="round_total" property="handbook"/>
 
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         id, game_name, description, create_time, status, max_user, min_user, clues_enable, max_clues, round,
-        dm,round_total
+        dm,round_total,handbook
     </sql>
 
 </mapper>

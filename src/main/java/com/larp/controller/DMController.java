@@ -11,7 +11,10 @@ import com.larp.service.WebSocket;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/dm")
@@ -21,6 +24,12 @@ public class DMController {
 
     @Autowired
     WebSocket webSocket;
+
+    @GetMapping("/getHandBook/{gameId}")
+    public Result getHandBook(@PathVariable Integer gameId) throws FileNotFoundException {
+        List<String> handbooks = gameService.getHandbook(gameId);
+        return Result.success(handbooks);
+    }
 
     /**
      * 进入下一章
@@ -61,6 +70,7 @@ public class DMController {
 
     /**
      * 【管理】开启投票
+     *
      * @param gameId
      * @param voteItem
      * @return

@@ -45,5 +45,4 @@ public class UsersController {
         List<Users> usersList = usersService.list(null);
         return Result.success(usersList);
     }
-
 }
