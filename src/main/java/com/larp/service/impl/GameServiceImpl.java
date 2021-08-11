@@ -1,8 +1,10 @@
 package com.larp.service.impl;
 
+import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.lang.Console;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.larp.common.exception.CommonException;
@@ -21,6 +23,7 @@ import org.apache.tomcat.util.digester.Rules;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,6 +36,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -65,52 +69,57 @@ public class GameServiceImpl extends ServiceImpl<GameMapper, Game> implements Ga
         return game;
     }
 
+    @Transactional
     @Override
     public void create(Game game, MultipartFile[] scripts, MultipartFile[] clues, MultipartFile[] handbook) throws IOException {
         // 检查名称是否重复
-        QueryWrapper<Game> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("game_name", game.getGameName());
-        int count = gameMapper.selectCount(queryWrapper);
-        if (count > 0) {
-            throw new CommonException("名称重复了");
-        }
-        game.setStatus(0);
-        game.setCreateTime(DateUtil.date());
-        game.setRound(-1); // -1 还未分配角色 0是分配好角色 发放初始信息
-        game.setCluesEnable(0);
-        gameMapper.insert(game);
-        // 上传线索和剧本
-        String path = ResourceUtils.getURL("classpath:").getPath() + "static";
-        String dirPath = path + "/" + game.getGameName();
-        FileUtil.mkdir(dirPath + "/剧本");
-        FileUtil.mkdir(dirPath + "/线索");
-        FileUtil.mkdir(dirPath + "/组织者手册");
-        if (scripts != null) {
-            for (MultipartFile file : scripts) {
-                String fileName = file.getOriginalFilename();
-                fileName = fileName.substring(fileName.indexOf("/"));
-                File f = new File(dirPath + "/剧本/" + fileName);
-                FileUtil.touch(f);
-                file.transferTo(f);
+        try {
+            QueryWrapper<Game> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("game_name", game.getGameName());
+            int count = gameMapper.selectCount(queryWrapper);
+            if (count > 0) {
+                throw new CommonException("名称重复了");
             }
-        }
-        if (clues != null) {
-            for (MultipartFile file : clues) {
-                String fileName = file.getOriginalFilename();
-                fileName = fileName.substring(fileName.indexOf("/"));
-                File f = new File(dirPath + "/线索/" + fileName);
-                FileUtil.touch(f);
-                file.transferTo(f);
+            game.setStatus(0);
+            game.setCreateTime(DateUtil.date());
+            game.setRound(-1); // -1 还未分配角色 0是分配好角色 发放初始信息
+            game.setCluesEnable(0);
+            // 上传线索和剧本
+            String path = ResourceUtils.getURL("classpath:").getPath() + "static";
+            String dirPath = path + "/" + game.getGameName();
+            FileUtil.mkdir(dirPath + "/剧本");
+            FileUtil.mkdir(dirPath + "/线索");
+            FileUtil.mkdir(dirPath + "/组织者手册");
+            if (scripts != null) {
+                for (MultipartFile file : scripts) {
+                    String fileName = file.getOriginalFilename();
+                    fileName = fileName.substring(fileName.indexOf("/"));
+                    File f = new File(dirPath + "/剧本/" + fileName);
+                    FileUtil.touch(f);
+                    file.transferTo(f);
+                }
             }
-        }
-        if (handbook != null) {
-            for (MultipartFile file : clues) {
-                String fileName = file.getOriginalFilename();
-                fileName = fileName.substring(fileName.indexOf("/"));
-                File f = new File(dirPath + "/组织者手册/" + fileName);
-                FileUtil.touch(f);
-                file.transferTo(f);
+            if (clues != null) {
+                for (MultipartFile file : clues) {
+                    String fileName = file.getOriginalFilename();
+                    fileName = fileName.substring(fileName.indexOf("/"));
+                    File f = new File(dirPath + "/线索/" + fileName);
+                    FileUtil.touch(f);
+                    file.transferTo(f);
+                }
             }
+            if (handbook != null) {
+                for (MultipartFile file : handbook) {
+                    String fileName = file.getOriginalFilename();
+                    fileName = fileName.substring(fileName.indexOf("/"));
+                    File f = new File(dirPath + "/组织者手册/" + fileName);
+                    FileUtil.touch(f);
+                    file.transferTo(f);
+                }
+            }
+            gameMapper.insert(game);
+        } catch (Exception e) {
+            throw new CommonException(e.getMessage());
         }
     }
 
@@ -151,6 +160,8 @@ public class GameServiceImpl extends ServiceImpl<GameMapper, Game> implements Ga
         String path = ResourceUtils.getURL("classpath:").getPath() + "static";
         // 初始化角色和剧情
         String roleDirPath = path + "/" + game.getGameName() + "/剧本";
+        //todo 这里可以直接用FileUtil.loopFiles 遍历获取所有文件和文件夹
+
         File[] roleFolds = FileUtil.ls(roleDirPath);
         if (roleFolds.length == 0) {
             throw new CommonException("未上传剧本");
@@ -307,9 +318,10 @@ public class GameServiceImpl extends ServiceImpl<GameMapper, Game> implements Ga
         List<String> handbooks = new ArrayList<String>();
         for (File file : files) {
             if (file.isFile()) {
-                handbooks.add(dirPath + "/" + file.getName());
+                Console.log(file.getName());
+                handbooks.add(game.getGameName() + "/组织者手册/"  + file.getName());
             }
         }
-        return handbooks;
+        return handbooks.stream().sorted(Comparator.comparing(String::toString)).collect(Collectors.toList());
     }
 }
