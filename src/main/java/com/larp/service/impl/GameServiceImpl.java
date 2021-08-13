@@ -318,7 +318,6 @@ public class GameServiceImpl extends ServiceImpl<GameMapper, Game> implements Ga
         List<String> handbooks = new ArrayList<String>();
         for (File file : files) {
             if (file.isFile()) {
-                Console.log(file.getName());
                 handbooks.add(game.getGameName() + "/组织者手册/"  + file.getName());
             }
         }

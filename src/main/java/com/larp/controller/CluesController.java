@@ -59,5 +59,9 @@ public class CluesController {
         webSocket.sendInfo(res, null);
         return Result.success(true);
     }
+    @GetMapping("/getLocation")
+    public Result getLocation(@RequestParam Integer gameId,@RequestParam Integer round){
+        return Result.success(cluesService.getLocation(gameId,round));
+    }
 
 }

@@ -2,6 +2,8 @@ package com.larp.service.impl;
 
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.lang.Console;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.larp.common.exception.CommonException;
 import com.larp.common.lang.Result;
 import com.larp.entity.Clues;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -82,5 +85,12 @@ public class CluesServiceImpl extends ServiceImpl<CluesMapper, Clues> implements
         clues.setStatus(2);
         cluesMapper.updateById(clues);
         return clues;
+    }
+
+    @Override
+    public List<Map<String, Object>> getLocation(Integer gameId, Integer round) {
+        QueryWrapper<Clues> queryWrapper = new  QueryWrapper<Clues>();
+        queryWrapper.eq("game_id",gameId).eq("round",round).groupBy("location").select("location");
+        return cluesMapper.selectMaps(queryWrapper);
     }
 }

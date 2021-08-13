@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.larp.entity.Clues;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -19,4 +20,6 @@ public interface CluesService extends IService<Clues> {
     List<Clues> getMyClues (Integer roleId);
 
     Clues share(Integer id);
+
+    List<Map<String, Object>> getLocation(Integer gameId, Integer round);
 }
