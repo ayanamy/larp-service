@@ -20,5 +20,5 @@ public interface CluesMapper extends BaseMapper<Clues> {
 
     List<Clues> getMyClues(int roleId, int gameId);
 
-    Clues getNewClues(int gameId, int round);
+    Clues getNewClues(int gameId, int round,String location);
 }

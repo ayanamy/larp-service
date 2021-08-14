@@ -301,6 +301,9 @@ public class GameServiceImpl extends ServiceImpl<GameMapper, Game> implements Ga
         if (game == null) {
             throw new CommonException("游戏不存在");
         }
+        if (game.getRound() > game.getRoundTotal()) {
+            throw new CommonException("已经没有下一回合了");
+        }
         int round = Convert.toInt(game.getRound(), -1);
         game.setRound(round + 1);
         gameMapper.updateById(game);
@@ -318,7 +321,7 @@ public class GameServiceImpl extends ServiceImpl<GameMapper, Game> implements Ga
         List<String> handbooks = new ArrayList<String>();
         for (File file : files) {
             if (file.isFile()) {
-                handbooks.add(game.getGameName() + "/组织者手册/"  + file.getName());
+                handbooks.add(game.getGameName() + "/组织者手册/" + file.getName());
             }
         }
         return handbooks.stream().sorted(Comparator.comparing(String::toString)).collect(Collectors.toList());

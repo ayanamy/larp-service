@@ -48,6 +48,9 @@
         <if test="round != null">
             and round = #{round}
         </if>
+        <if test="location != null">
+            and location = #{location}
+        </if>
         and status = 0 limit 1
     </select>
 

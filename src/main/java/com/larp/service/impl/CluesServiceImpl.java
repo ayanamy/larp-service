@@ -37,9 +37,9 @@ public class CluesServiceImpl extends ServiceImpl<CluesMapper, Clues> implements
     GameService gameService;
 
     @Override
-    public Clues getNewClues(Integer roleId) {
+    public Clues getNewClues(Integer roleId, Integer gameId, String location) {
         // 验证当前是否开启了线索
-        Game game = gameService.getCurrentGame();
+        Game game = gameService.getById(gameId);
         if (game.getRound() == null || game.getRound() < 1 || game.getCluesEnable() == null || game.getCluesEnable() < 1) {
             throw new CommonException("当前未开启线索");
         }
@@ -47,7 +47,7 @@ public class CluesServiceImpl extends ServiceImpl<CluesMapper, Clues> implements
         List<Clues> clues = cluesMapper.getPrevClues(roleId, game.getRound());
 
         // 判断最大次数
-        if(game.getMaxClues()!=null && game.getMaxClues()>0 &&  clues.size()>=game.getMaxClues()){
+        if (game.getMaxClues() != null && game.getMaxClues() > 0 && clues.size() >= game.getMaxClues()) {
             throw new CommonException("本轮线索已获取了最大值");
         }
         // 和上次线索比较是否时间到了
@@ -57,14 +57,21 @@ public class CluesServiceImpl extends ServiceImpl<CluesMapper, Clues> implements
             System.out.println(pickTime);
             long diff = DateUtil.between(pickTime, DateUtil.date(), DateUnit.MINUTE);
             System.out.println(diff);
-            if (diff < 5) {
-                throw new CommonException("请等待" + (5 - diff) + "分钟后进行获取!");
-            }
+//            if (diff < 5) {
+//                throw new CommonException("请等待" + (5 - diff) + "分钟后进行获取!");
+//            }
         }
         // 判断当前是否存在线索 有的话就给出线索
-        Clues newClues = cluesMapper.getNewClues(game.getId(), game.getRound());
-        if (newClues == null) {
+        QueryWrapper<Clues> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("game_id", gameId).eq("round", game.getRound());
+
+        int num = cluesMapper.selectCount(queryWrapper);
+        if (num == 0) {
             throw new CommonException("线索已经用用完了，请等待下一轮");
+        }
+        Clues newClues = cluesMapper.getNewClues(game.getId(), game.getRound(), location);
+        if (newClues == null) {
+            throw new CommonException("当前区域已没有线索，请更换其他地点");
         }
         newClues.setStatus(1);
         newClues.setRoleId(roleId);
@@ -89,8 +96,8 @@ public class CluesServiceImpl extends ServiceImpl<CluesMapper, Clues> implements
 
     @Override
     public List<Map<String, Object>> getLocation(Integer gameId, Integer round) {
-        QueryWrapper<Clues> queryWrapper = new  QueryWrapper<Clues>();
-        queryWrapper.eq("game_id",gameId).eq("round",round).groupBy("location").select("location");
+        QueryWrapper<Clues> queryWrapper = new QueryWrapper<Clues>();
+        queryWrapper.eq("game_id", gameId).eq("round", round).groupBy("location").select("location");
         return cluesMapper.selectMaps(queryWrapper);
     }
 }

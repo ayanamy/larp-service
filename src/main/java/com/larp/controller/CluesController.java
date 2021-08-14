@@ -41,8 +41,8 @@ public class CluesController {
     WebSocket webSocket;
 
     @PostMapping("/getNewClues")
-    public Result getNewClues(Integer roleId) {
-        Clues clues = cluesService.getNewClues(roleId);
+    public Result getNewClues(Integer roleId,Integer gameId,String location) {
+        Clues clues = cluesService.getNewClues(roleId,gameId,location);
         return Result.success(clues);
     }
 

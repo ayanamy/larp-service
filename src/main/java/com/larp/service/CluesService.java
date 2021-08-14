@@ -8,16 +8,16 @@ import java.util.Map;
 
 /**
  * <p>
- *  服务类
+ * 服务类
  * </p>
  *
  * @author hippo
  * @since 2021-07-23
  */
 public interface CluesService extends IService<Clues> {
-    Clues getNewClues(Integer roleId);
+    Clues getNewClues(Integer roleId, Integer gameId, String location);
 
-    List<Clues> getMyClues (Integer roleId);
+    List<Clues> getMyClues(Integer roleId);
 
     Clues share(Integer id);
 
