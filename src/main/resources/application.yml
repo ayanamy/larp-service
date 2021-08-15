@@ -1,11 +1,13 @@
 server:
   port: 8011
+  servlet:
+    context-path:
 spring:
   web:
     resources:
-      static-locations: classpath:/static
-  mvc:
-    static-path-pattern: /**
+      static-locations: classpath:/templates/dist/,classpath:/static
+#  mvc:
+#    static-path-pattern: /static/**
   servlet:
     multipart:
       max-file-size: -1
