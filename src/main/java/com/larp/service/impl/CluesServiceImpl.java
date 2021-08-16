@@ -57,9 +57,9 @@ public class CluesServiceImpl extends ServiceImpl<CluesMapper, Clues> implements
             System.out.println(pickTime);
             long diff = DateUtil.between(pickTime, DateUtil.date(), DateUnit.MINUTE);
             System.out.println(diff);
-//            if (diff < 5) {
-//                throw new CommonException("请等待" + (5 - diff) + "分钟后进行获取!");
-//            }
+            if (diff < 2) {
+                throw new CommonException("请等待" + (2 - diff) + "分钟后进行获取!");
+            }
         }
         // 判断当前是否存在线索 有的话就给出线索
         QueryWrapper<Clues> queryWrapper = new QueryWrapper<>();
