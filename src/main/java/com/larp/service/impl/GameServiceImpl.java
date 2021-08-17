@@ -124,7 +124,9 @@ public class GameServiceImpl extends ServiceImpl<GameMapper, Game> implements Ga
 
     @Override
     public List<Game> getList() {
-        return gameMapper.selectList(null);
+        QueryWrapper<Game> queryWrapper = new QueryWrapper<>();
+        queryWrapper.orderByDesc("id");
+        return gameMapper.selectList(queryWrapper);
     }
 
     @Override
@@ -260,6 +262,7 @@ public class GameServiceImpl extends ServiceImpl<GameMapper, Game> implements Ga
                 }
             }
         }
+        game.setRound(0);
         gameMapper.updateById(game);
     }
 
@@ -269,7 +272,7 @@ public class GameServiceImpl extends ServiceImpl<GameMapper, Game> implements Ga
         if (game == null) {
             throw new CommonException("游戏不存在");
         }
-        if (game.getStatus() != 1 || game.getRound() != -1) {
+        if (game.getStatus() != 1 || game.getRound() != 0) {
             throw new CommonException("数据异常，请刷新");
         }
         QueryWrapper<Roles> queryWrapper = new QueryWrapper<>();

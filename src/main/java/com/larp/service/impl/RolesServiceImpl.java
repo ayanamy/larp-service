@@ -34,7 +34,7 @@ public class RolesServiceImpl extends ServiceImpl<RolesMapper, Roles> implements
     public List<Roles> getRolesByGame(int gameId, String user) {
         if (!StrUtil.hasBlank(user)) {
             Game game = gameService.getById(gameId);
-            if (game.getRound() != null && game.getRound() < 0) {
+            if (game.getRound() != null && game.getRound() < 1) {
                 QueryWrapper<Roles> queryWrapper = new QueryWrapper<>();
                 queryWrapper.eq("game_id", gameId).eq("user", user);
                 Roles roles = rolesMapper.selectOne(queryWrapper);
