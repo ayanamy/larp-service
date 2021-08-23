@@ -249,8 +249,8 @@ public class GameServiceImpl extends ServiceImpl<GameMapper, Game> implements Ga
                             Clues clue = new Clues();
                             clue.setGameId(gameId);
                             clue.setCode(fileName);
-                            clue.setLocation("");
-                            clue.setRound(round);
+                            clue.setLocation("特殊线索");
+                            clue.setRound(99);
                             clue.setStatus(0);
                             clue.setClueType("special");
                             String images = StrUtil.format("{}/线索/{}/{}", game.getGameName(), round, fileName);

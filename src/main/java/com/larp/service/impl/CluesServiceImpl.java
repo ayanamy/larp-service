@@ -47,9 +47,9 @@ public class CluesServiceImpl extends ServiceImpl<CluesMapper, Clues> implements
         List<Clues> clues = cluesMapper.getPrevClues(roleId, game.getRound());
 
         // 判断最大次数
-        if (game.getMaxClues() != null && game.getMaxClues() > 0 && clues.size() >= game.getMaxClues()) {
-            throw new CommonException("本轮线索已获取了最大值");
-        }
+//        if (game.getMaxClues() != null && game.getMaxClues() > 0 && clues.size() >= game.getMaxClues()) {
+//            throw new CommonException("本轮线索已获取了最大值");
+//        }
         // 和上次线索比较是否时间到了
         if (clues != null && !clues.isEmpty()) {
             Clues clue = clues.get(0);

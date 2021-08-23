@@ -66,13 +66,14 @@ public class GameController {
     }
 
     @PostMapping("/start/{gameId}")
-    public Object start(@PathVariable Integer gameId) {
+    public Object start(@PathVariable Integer gameId,@RequestParam String user) {
         Game game = gameService.getCurrentGame();
         if(game!=null){
             return Result.fail("当前已经有启动的游戏了");
         }
         game = gameService.getById(gameId);
         game.setStatus(1);
+        game.setDm(user);
         gameService.updateById(game);
         return Result.success(true);
     }

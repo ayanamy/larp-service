@@ -44,7 +44,8 @@ public class ScriptsServiceImpl extends ServiceImpl<ScriptsMapper, Scripts> impl
         }
         Game game = gameService.getById(gameId);
         QueryWrapper<Scripts> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("role_id", roleId).le("round",game.getRound());
+        int round = game.getRound() == 0 ? 1:game.getRound();
+        queryWrapper.eq("role_id", roleId).le("round",round);
         List<Scripts> scripts = scriptsMapper.selectList(queryWrapper);
         return scripts;
     }
